@@ -5,7 +5,7 @@
 
 <meta charset="UTF-8">
 
-<title>Matrix Background</title>
+<title>Matrix Student System</title>
 
 <style>
 
@@ -13,12 +13,89 @@ body{
   margin:0;
   overflow:hidden;
   background:black;
+  font-family:monospace;
+  color:#00ff41;
 }
 
 canvas{
   position:fixed;
   top:0;
   left:0;
+  z-index:-1;
+}
+
+.login-box{
+
+  width:320px;
+
+  position:absolute;
+
+  top:50%;
+  left:50%;
+
+  transform:
+    translate(-50%,-50%);
+
+  background:
+    rgba(0,0,0,0.85);
+
+  border:
+    1px solid #00ff41;
+
+  padding:30px;
+
+  box-shadow:
+    0 0 20px #00ff41;
+}
+
+h2{
+  text-align:center;
+}
+
+input{
+
+  width:100%;
+
+  padding:12px;
+
+  margin-top:10px;
+
+  background:black;
+
+  border:
+    1px solid #00ff41;
+
+  color:#00ff41;
+
+  box-sizing:border-box;
+}
+
+button{
+
+  width:100%;
+
+  padding:12px;
+
+  margin-top:15px;
+
+  background:black;
+
+  border:
+    1px solid #00ff41;
+
+  color:#00ff41;
+
+  cursor:pointer;
+}
+
+button:hover{
+  background:#00ff41;
+  color:black;
+}
+
+#msg{
+  text-align:center;
+  margin-top:10px;
 }
 
 </style>
@@ -29,7 +106,83 @@ canvas{
 
 <canvas id="matrix"></canvas>
 
+<div class="login-box">
+
+<h2>LOGIN</h2>
+
+<input
+  type="text"
+  id="id"
+  placeholder="Student ID">
+
+<input
+  type="password"
+  id="pass"
+  placeholder="Password">
+
+<button onclick="login()">
+
+LOGIN
+
+</button>
+
+<p id="msg"></p>
+
+</div>
+
 <script>
+
+const API_URL =
+"https://script.google.com/macros/s/AKfycbxU0DjykaZyRCQSBp_mmBAJElncUnADTScqBBTN-TBaYeoAlVqeqQ-Dq0GbnIc5Q4rW-Q/exec";
+
+function login(){
+
+  const id =
+    document.getElementById("id").value;
+
+  const pass =
+    document.getElementById("pass").value;
+
+  fetch(
+    API_URL
+    + "?action=login"
+    + "&id=" + id
+    + "&pass=" + pass
+  )
+
+  .then(res => res.json())
+
+  .then(data => {
+
+    if(data.status == "success"){
+
+      document
+        .getElementById("msg")
+        .innerHTML =
+        "✅ LOGIN SUCCESS";
+
+    }
+
+    else{
+
+      document
+        .getElementById("msg")
+        .innerHTML =
+        "❌ LOGIN FAILED";
+    }
+
+  })
+
+  .catch(err => {
+
+    document
+      .getElementById("msg")
+      .innerHTML =
+      "⚠️ API ERROR";
+
+  });
+
+}
 
 const canvas =
   document.getElementById("matrix");
@@ -37,8 +190,11 @@ const canvas =
 const ctx =
   canvas.getContext("2d");
 
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+canvas.width =
+  window.innerWidth;
+
+canvas.height =
+  window.innerHeight;
 
 const letters =
   "アイウエオカキクケコ0123456789";
@@ -46,7 +202,9 @@ const letters =
 const fontSize = 16;
 
 const columns =
-  Math.floor(canvas.width / fontSize);
+  Math.floor(
+    canvas.width / fontSize
+  );
 
 const drops = [];
 
@@ -66,17 +224,21 @@ function draw(){
     canvas.height
   );
 
-  ctx.fillStyle = "#00ff41";
+  ctx.fillStyle =
+    "#00ff41";
 
   ctx.font =
     fontSize + "px monospace";
 
-  for(let i = 0; i < drops.length; i++){
+  for(let i = 0;
+      i < drops.length;
+      i++){
 
     const text =
       letters[
         Math.floor(
-          Math.random() * letters.length
+          Math.random()
+          * letters.length
         )
       ];
 
@@ -87,8 +249,8 @@ function draw(){
     );
 
     if(
-      drops[i] * fontSize >
-      canvas.height
+      drops[i] * fontSize
+      > canvas.height
       &&
       Math.random() > 0.975
     ){
@@ -99,7 +261,7 @@ function draw(){
   }
 }
 
-setInterval(draw, 33);
+setInterval(draw,33);
 
 window.addEventListener(
   "resize",
