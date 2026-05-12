@@ -11,10 +11,10 @@
 
 body{
   margin:0;
-  overflow:hidden;
+  overflow-x:hidden;
   background:black;
-  font-family:monospace;
   color:#00ff41;
+  font-family:monospace;
 }
 
 canvas{
@@ -52,7 +52,9 @@ h2{
   text-align:center;
 }
 
-input{
+input,
+select,
+button{
 
   width:100%;
 
@@ -71,20 +73,6 @@ input{
 }
 
 button{
-
-  width:100%;
-
-  padding:12px;
-
-  margin-top:15px;
-
-  background:black;
-
-  border:
-    1px solid #00ff41;
-
-  color:#00ff41;
-
   cursor:pointer;
 }
 
@@ -98,6 +86,53 @@ button:hover{
   margin-top:10px;
 }
 
+.card{
+
+  border:
+    1px solid #00ff41;
+
+  margin-top:20px;
+
+  padding:20px;
+
+  background:#111;
+
+  box-shadow:
+    0 0 15px #00ff41;
+}
+
+img{
+  max-width:250px;
+  border:1px solid #00ff41;
+  margin-top:10px;
+}
+
+.work-text{
+
+  background:black;
+
+  border:
+    1px solid #00ff41;
+
+  padding:15px;
+
+  margin-top:10px;
+
+  white-space:pre-wrap;
+
+  line-height:1.6;
+
+  font-family:monospace;
+}
+
+.dashboard{
+  padding:20px;
+}
+
+.logout-btn{
+  max-width:200px;
+}
+
 </style>
 
 </head>
@@ -106,7 +141,9 @@ button:hover{
 
 <canvas id="matrix"></canvas>
 
-<div class="login-box">
+<!-- LOGIN -->
+
+<div class="login-box" id="loginBox">
 
 <h2>LOGIN</h2>
 
@@ -121,27 +158,137 @@ button:hover{
   placeholder="Password">
 
 <button onclick="login()">
-
 LOGIN
-
 </button>
 
 <p id="msg"></p>
 
 </div>
 
+<!-- TEACHER PANEL -->
+
+<div
+  id="teacherPanel"
+  class="dashboard"
+  style="display:none;">
+
+<h1>Teacher Dashboard</h1>
+
+<button
+  class="logout-btn"
+  onclick="logout()">
+
+Logout
+
+</button>
+
+<br><br>
+
+<select id="topic"></select>
+
+<select id="classFilter">
+
+<option value="">
+ทุกห้อง
+</option>
+
+</select>
+
+<input
+  type="number"
+  id="noFilter"
+  placeholder="เลขที่">
+
+<button onclick="loadWork()">
+โหลดงาน
+</button>
+
+<div id="work"></div>
+
+</div>
+
+<!-- STUDENT PANEL -->
+
+<div
+  id="studentPanel"
+  class="dashboard"
+  style="display:none;">
+
+<h1>Student Dashboard</h1>
+
+<button
+  class="logout-btn"
+  onclick="logout()">
+
+Logout
+
+</button>
+
+<div id="studentData"></div>
+
+</div>
+
 <script>
 
 const API_URL =
-"https://script.google.com/macros/s/AKfycbxiRYT-UHKNhqZtq-m7xf50VrrzW3uLAB0y--60X6-A3ChF4E4AlxhMb_Fwh9ij77dX/exec";
+"https://script.google.com/macros/s/AKfycbxiRYT-UHKNhqZtq-m7xf50VrrzW3uLAB0y--60X6-A3ChF4E4AlxhMb_Fwh9ij77dX/exec
+  ";
+
+/* =========================
+   SESSION LOGIN
+========================= */
+
+window.onload = function(){
+
+  const user =
+    JSON.parse(
+      localStorage.getItem("user")
+    );
+
+  if(user){
+
+    document
+      .getElementById("loginBox")
+      .style.display = "none";
+
+    if(user.role == "teacher"){
+
+      document
+        .getElementById("teacherPanel")
+        .style.display = "block";
+
+      loadTopics();
+    }
+
+    else{
+
+      document
+        .getElementById("studentPanel")
+        .style.display = "block";
+
+      document
+        .getElementById("studentData")
+        .innerHTML =
+        "Welcome " + user.name;
+    }
+  }
+}
+
+/* =========================
+   LOGIN
+========================= */
 
 function login(){
 
   const id =
-    document.getElementById("id").value;
+    document
+      .getElementById("id")
+      .value;
 
   const pass =
-    document.getElementById("pass").value;
+    document
+      .getElementById("pass")
+      .value;
 
   fetch(
     API_URL
@@ -156,11 +303,35 @@ function login(){
 
     if(data.status == "success"){
 
-      document
-        .getElementById("msg")
-        .innerHTML =
-        "✅ LOGIN SUCCESS";
+      localStorage.setItem(
+        "user",
+        JSON.stringify(data)
+      );
 
+      document
+        .getElementById("loginBox")
+        .style.display = "none";
+
+      if(data.role == "teacher"){
+
+        document
+          .getElementById("teacherPanel")
+          .style.display = "block";
+
+        loadTopics();
+      }
+
+      else{
+
+        document
+          .getElementById("studentPanel")
+          .style.display = "block";
+
+        document
+          .getElementById("studentData")
+          .innerHTML =
+          "Welcome " + data.name;
+      }
     }
 
     else{
@@ -183,6 +354,212 @@ function login(){
   });
 
 }
+
+/* =========================
+   LOGOUT
+========================= */
+
+function logout(){
+
+  localStorage.removeItem("user");
+
+  location.reload();
+}
+
+/* =========================
+   LOAD TOPICS
+========================= */
+
+function loadTopics(){
+
+  fetch(
+    API_URL
+    + "?action=topics"
+  )
+
+  .then(res => res.json())
+
+  .then(data => {
+
+    let html = "";
+
+    data.forEach(t => {
+
+      html += `
+      <option value="${t.url}">
+      ${t.level} - ${t.topic}
+      </option>
+      `;
+    });
+
+    document
+      .getElementById("topic")
+      .innerHTML = html;
+  });
+}
+
+/* =========================
+   LOAD WORK
+========================= */
+
+function loadWork(){
+
+  const url =
+    document
+      .getElementById("topic")
+      .value;
+
+  fetch(
+    API_URL
+    + "?action=studentWork"
+    + "&url="
+    + encodeURIComponent(url)
+  )
+
+  .then(res => res.json())
+
+  .then(data => {
+
+    let html = "";
+
+    const classFilter =
+      document
+        .getElementById("classFilter")
+        .value;
+
+    const noFilter =
+      document
+        .getElementById("noFilter")
+        .value;
+
+    data.forEach(s => {
+
+      if(
+        classFilter &&
+        s.class != classFilter
+      )
+      return;
+
+      if(
+        noFilter &&
+        s.no != noFilter
+      )
+      return;
+
+      html += `
+
+      <div class="card">
+
+      <p>
+      ส่งเมื่อ:
+      ${s.timestamp}
+      </p>
+
+      <h3>
+      ${s.class}
+      เลขที่ ${s.no}
+      </h3>
+
+      <p>${s.name}</p>
+
+      ${
+        s.work.includes("http")
+
+        ?
+
+        `<img
+          loading="lazy"
+          src="${s.work}">`
+
+        :
+
+        `<div class="work-text">
+          ${s.work}
+        </div>`
+      }
+
+      <br><br>
+
+      <input
+        type="number"
+        id="score_${s.id}"
+        value="${s.score || ''}"
+        placeholder="คะแนน">
+
+      <button
+        onclick="saveScore(
+          '${url}',
+          '${s.id}'
+        )">
+
+      บันทึกคะแนน
+
+      </button>
+
+      </div>
+      `;
+    });
+
+    document
+      .getElementById("work")
+      .innerHTML = html;
+
+  });
+
+}
+
+/* =========================
+   SAVE SCORE
+========================= */
+
+function saveScore(
+  url,
+  studentId
+){
+
+  const score =
+    document
+      .getElementById(
+        "score_" + studentId
+      )
+      .value;
+
+  fetch(
+    API_URL
+    + "?action=updateScore"
+    + "&url="
+    + encodeURIComponent(url)
+    + "&studentId="
+    + studentId
+    + "&score="
+    + score
+  )
+
+  .then(res => res.json())
+
+  .then(data => {
+
+    if(
+      data.status == "success"
+    ){
+
+      alert(
+        "บันทึกคะแนนแล้ว"
+      );
+    }
+
+    else{
+
+      alert("ผิดพลาด");
+    }
+
+  });
+
+}
+
+/* =========================
+   MATRIX EFFECT
+========================= */
 
 const canvas =
   document.getElementById("matrix");
@@ -208,7 +585,11 @@ const columns =
 
 const drops = [];
 
-for(let i = 0; i < columns; i++){
+for(
+  let i = 0;
+  i < columns;
+  i++
+){
   drops[i] = 1;
 }
 
@@ -228,11 +609,14 @@ function draw(){
     "#00ff41";
 
   ctx.font =
-    fontSize + "px monospace";
+    fontSize
+    + "px monospace";
 
-  for(let i = 0;
-      i < drops.length;
-      i++){
+  for(
+    let i = 0;
+    i < drops.length;
+    i++
+  ){
 
     const text =
       letters[
