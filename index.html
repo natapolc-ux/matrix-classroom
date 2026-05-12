@@ -1,7 +1,27 @@
 <!DOCTYPE html>
+<body>
+<script>
+
+const canvas =
+  document.getElementById("matrix");
+
+const ctx =
+  canvas.getContext("2d");
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+const letters =
+  "アイウエオカキクケコ0123456789";
+
+const fontSize = 16;
+
+const columns =
+  Math.floor(canvas.width / fontSize);
+
 const drops = [];
 
-for(let i=0;i<columns;i++){
+for(let i = 0; i < columns; i++){
   drops[i] = 1;
 }
 
@@ -22,33 +42,47 @@ function draw(){
   ctx.font =
     fontSize + "px monospace";
 
-  for(let i=0;i<drops.length;i++){
+  for(let i = 0; i < drops.length; i++){
 
     const text =
       letters[
         Math.floor(
-          Math.random()*letters.length
+          Math.random() * letters.length
         )
       ];
 
     ctx.fillText(
       text,
-      i*fontSize,
-      drops[i]*fontSize
+      i * fontSize,
+      drops[i] * fontSize
     );
 
     if(
-      drops[i]*fontSize > canvas.height
-      && Math.random() > 0.975
+      drops[i] * fontSize >
+      canvas.height
+      &&
+      Math.random() > 0.975
     ){
-      drops[i]=0;
+      drops[i] = 0;
     }
 
     drops[i]++;
   }
 }
 
-setInterval(draw,33);
+setInterval(draw, 33);
+
+window.addEventListener(
+  "resize",
+  () => {
+
+    canvas.width =
+      window.innerWidth;
+
+    canvas.height =
+      window.innerHeight;
+  }
+);
 
 </script>
 
