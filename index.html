@@ -251,15 +251,32 @@ function loadTopics(){
 
   .then(response => {
 
-    if(response.status !== "success"){
+    let data = [];
+
+    // รองรับ API แบบใหม่
+    if(
+      response &&
+      response.status === "success" &&
+      Array.isArray(response.data)
+    ){
+      data = response.data;
+    }
+
+    // รองรับ API แบบเดิม ที่ส่ง Array กลับมาตรง ๆ
+    else if(Array.isArray(response)){
+      data = response;
+    }
+
+    // กรณีเกิด error จริง
+    else{
       topicSelect.innerHTML =
         `<option value="">โหลดหัวข้องานไม่สำเร็จ</option>`;
+
+      console.log("Topics API Response:", response);
       return;
     }
 
-    const data = response.data;
-
-    if(!data || data.length === 0){
+    if(data.length === 0){
       topicSelect.innerHTML =
         `<option value="">ยังไม่มีหัวข้องาน</option>`;
       return;
@@ -270,8 +287,8 @@ function loadTopics(){
     data.forEach(t => {
 
       html += `
-        <option value="${escapeHtml(t.url)}">
-          ${escapeHtml(t.level)} - ${escapeHtml(t.topic)}
+        <option value="${t.url}">
+          ${t.level} - ${t.topic}
         </option>
       `;
     });
@@ -285,7 +302,6 @@ function loadTopics(){
       `<option value="">โหลดหัวข้องานไม่สำเร็จ</option>`;
   });
 }
-
 
 // ===============================
 // โหลดงานนักเรียน
