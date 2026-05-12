@@ -1,10 +1,8 @@
 <!DOCTYPE html>
 <html>
-
 <head>
 
 <meta charset="UTF-8">
-
 <title>Matrix Student System</title>
 
 <style>
@@ -25,179 +23,78 @@ canvas{
 }
 
 .login-box{
-
-  width:320px;
-
-  position:absolute;
-
-  top:50%;
-  left:50%;
-
-  transform:
-    translate(-50%,-50%);
-
-  background:
-    rgba(0,0,0,0.85);
-
-  border:
-    1px solid #00ff41;
-
-  padding:30px;
-
-  box-shadow:
-    0 0 20px #00ff41;
+  width:300px;
+  margin:100px auto;
+  background:rgba(0,0,0,0.8);
+  border:1px solid #00ff41;
+  padding:20px;
+  box-shadow:0 0 20px #00ff41;
 }
 
-h2{
-  text-align:center;
-}
-
-input,
-select,
-button{
-
+input,select,button{
   width:100%;
-
-  padding:12px;
-
   margin-top:10px;
-
+  padding:10px;
   background:black;
-
-  border:
-    1px solid #00ff41;
-
   color:#00ff41;
-
-  box-sizing:border-box;
+  border:1px solid #00ff41;
 }
 
 button{
   cursor:pointer;
 }
 
-button:hover{
-  background:#00ff41;
-  color:black;
-}
-
-#msg{
-  text-align:center;
-  margin-top:10px;
-}
-
 .card{
-
-  border:
-    1px solid #00ff41;
-
-  margin-top:20px;
-
+  border:1px solid #00ff41;
+  margin:20px;
   padding:20px;
-
   background:#111;
-
-  box-shadow:
-    0 0 15px #00ff41;
+  box-shadow:0 0 15px #00ff41;
 }
 
 img{
   max-width:250px;
-  border:1px solid #00ff41;
-  margin-top:10px;
-}
-
-.work-text{
-
-  background:black;
-
-  border:
-    1px solid #00ff41;
-
-  padding:15px;
-
-  margin-top:10px;
-
-  white-space:pre-wrap;
-
-  line-height:1.6;
-
-  font-family:monospace;
-}
-
-.dashboard{
-  padding:20px;
-}
-
-.logout-btn{
-  max-width:200px;
 }
 
 </style>
 
 </head>
-
 <body>
 
 <canvas id="matrix"></canvas>
-
-<!-- LOGIN -->
 
 <div class="login-box" id="loginBox">
 
 <h2>LOGIN</h2>
 
-<input
-  type="text"
-  id="id"
-  placeholder="Student ID">
+<input id="id" placeholder="Student ID">
 
-<input
-  type="password"
-  id="pass"
-  placeholder="Password">
+<input id="pass"
+       type="password"
+       placeholder="Password">
 
 <button onclick="login()">
-LOGIN
+เข้าสู่ระบบ
 </button>
 
 <p id="msg"></p>
 
 </div>
 
-<!-- TEACHER PANEL -->
+<div id="teacherPanel"
+     style="display:none;padding:20px;">
 
-<div
-  id="teacherPanel"
-  class="dashboard"
-  style="display:none;">
-
-<h1>Teacher Dashboard</h1>
-
-<button
-  class="logout-btn"
-  onclick="logout()">
-
-Logout
-
-</button>
-
-<br><br>
+<h2>Teacher Dashboard</h2>
 
 <select id="topic"></select>
 
 <select id="classFilter">
-
-<option value="">
-ทุกห้อง
-</option>
-
+  <option value="">ทุกห้อง</option>
 </select>
 
-<input
-  type="number"
-  id="noFilter"
-  placeholder="เลขที่">
+<input id="noFilter"
+       type="number"
+       placeholder="เลขที่">
 
 <button onclick="loadWork()">
 โหลดงาน
@@ -207,22 +104,10 @@ Logout
 
 </div>
 
-<!-- STUDENT PANEL -->
+<div id="studentPanel"
+     style="display:none;padding:20px;">
 
-<div
-  id="studentPanel"
-  class="dashboard"
-  style="display:none;">
-
-<h1>Student Dashboard</h1>
-
-<button
-  class="logout-btn"
-  onclick="logout()">
-
-Logout
-
-</button>
+<h2>Student Dashboard</h2>
 
 <div id="studentData"></div>
 
@@ -230,64 +115,17 @@ Logout
 
 <script>
 
-const API_URL =
-"https://script.google.com/macros/s/AKfycbzeqAOJCH6DYu7_A0VzscY5mWYn4uXwGMzxsnmFaB00knp7CI4RBfS_EXI6P00OmXbhvQ/exec";
-
-/* =========================
-   SESSION LOGIN
-========================= */
-
-window.onload = function(){
-
-  const user =
-    JSON.parse(
-      localStorage.getItem("user")
-    );
-
-  if(user){
-
-    document
-      .getElementById("loginBox")
-      .style.display = "none";
-
-    if(user.role == "teacher"){
-
-      document
-        .getElementById("teacherPanel")
-        .style.display = "block";
-
-      loadTopics();
-    }
-
-    else{
-
-      document
-        .getElementById("studentPanel")
-        .style.display = "block";
-
-      document
-        .getElementById("studentData")
-        .innerHTML =
-        "Welcome " + user.name;
-    }
-  }
-}
-
-/* =========================
-   LOGIN
-========================= */
+const API_URL = "https://script.google.com/macros/s/AKfycbzeqAOJCH6DYu7_A0VzscY5mWYn4uXwGMzxsnmFaB00knp7CI4RBfS_EXI6P00OmXbhvQ/exec";
 
 function login(){
 
-  const id =
-    document
-      .getElementById("id")
-      .value;
+  const id = document
+    .getElementById("id")
+    .value;
 
-  const pass =
-    document
-      .getElementById("pass")
-      .value;
+  const pass = document
+    .getElementById("pass")
+    .value;
 
   fetch(
     API_URL
@@ -301,11 +139,6 @@ function login(){
   .then(data => {
 
     if(data.status == "success"){
-
-      localStorage.setItem(
-        "user",
-        JSON.stringify(data)
-      );
 
       document
         .getElementById("loginBox")
@@ -337,44 +170,14 @@ function login(){
 
       document
         .getElementById("msg")
-        .innerHTML =
-        "❌ LOGIN FAILED";
+        .innerHTML = "❌ Login Failed";
     }
-
-  })
-
-  .catch(err => {
-
-    document
-      .getElementById("msg")
-      .innerHTML =
-      "⚠️ API ERROR";
-
   });
-
 }
-
-/* =========================
-   LOGOUT
-========================= */
-
-function logout(){
-
-  localStorage.removeItem("user");
-
-  location.reload();
-}
-
-/* =========================
-   LOAD TOPICS
-========================= */
 
 function loadTopics(){
 
-  fetch(
-    API_URL
-    + "?action=topics"
-  )
+  fetch(API_URL + "?action=topics")
 
   .then(res => res.json())
 
@@ -387,8 +190,7 @@ function loadTopics(){
       html += `
       <option value="${t.url}">
       ${t.level} - ${t.topic}
-      </option>
-      `;
+      </option>`;
     });
 
     document
@@ -397,16 +199,11 @@ function loadTopics(){
   });
 }
 
-/* =========================
-   LOAD WORK
-========================= */
-
 function loadWork(){
 
-  const url =
-    document
-      .getElementById("topic")
-      .value;
+  const url = document
+    .getElementById("topic")
+    .value;
 
   fetch(
     API_URL
@@ -423,36 +220,27 @@ function loadWork(){
 
     const classFilter =
       document
-        .getElementById("classFilter")
-        .value;
+      .getElementById("classFilter")
+      .value;
 
     const noFilter =
       document
-        .getElementById("noFilter")
-        .value;
+      .getElementById("noFilter")
+      .value;
 
     data.forEach(s => {
 
-      if(
-        classFilter &&
-        s.class != classFilter
-      )
-      return;
+      if(classFilter &&
+         s.class != classFilter)
+        return;
 
-      if(
-        noFilter &&
-        s.no != noFilter
-      )
-      return;
+      if(noFilter &&
+         s.no != noFilter)
+        return;
 
       html += `
 
       <div class="card">
-
-      <p>
-      ส่งเมื่อ:
-      ${s.timestamp}
-      </p>
 
       <h3>
       ${s.class}
@@ -461,21 +249,7 @@ function loadWork(){
 
       <p>${s.name}</p>
 
-      ${
-        s.work.includes("http")
-
-        ?
-
-        `<img
-          loading="lazy"
-          src="${s.work}">`
-
-        :
-
-        `<div class="work-text">
-          ${s.work}
-        </div>`
-      }
+      <img src="${s.image}">
 
       <br><br>
 
@@ -502,26 +276,16 @@ function loadWork(){
     document
       .getElementById("work")
       .innerHTML = html;
-
   });
-
 }
 
-/* =========================
-   SAVE SCORE
-========================= */
+function saveScore(url,studentId){
 
-function saveScore(
-  url,
-  studentId
-){
-
-  const score =
-    document
-      .getElementById(
-        "score_" + studentId
-      )
-      .value;
+  const score = document
+    .getElementById(
+      "score_" + studentId
+    )
+    .value;
 
   fetch(
     API_URL
@@ -538,57 +302,35 @@ function saveScore(
 
   .then(data => {
 
-    if(
-      data.status == "success"
-    ){
-
-      alert(
-        "บันทึกคะแนนแล้ว"
-      );
+    if(data.status == "success"){
+      alert("บันทึกคะแนนแล้ว");
     }
 
     else{
-
       alert("ผิดพลาด");
     }
-
   });
-
 }
-
-/* =========================
-   MATRIX EFFECT
-========================= */
 
 const canvas =
   document.getElementById("matrix");
 
-const ctx =
-  canvas.getContext("2d");
+const ctx = canvas.getContext("2d");
 
-canvas.width =
-  window.innerWidth;
-
-canvas.height =
-  window.innerHeight;
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
 
 const letters =
-  "アイウエオカキクケコ0123456789";
+  "アイウエオ0123456789";
 
 const fontSize = 16;
 
 const columns =
-  Math.floor(
-    canvas.width / fontSize
-  );
+  canvas.width / fontSize;
 
 const drops = [];
 
-for(
-  let i = 0;
-  i < columns;
-  i++
-){
+for(let i=0;i<columns;i++){
   drops[i] = 1;
 }
 
@@ -604,40 +346,31 @@ function draw(){
     canvas.height
   );
 
-  ctx.fillStyle =
-    "#00ff41";
+  ctx.fillStyle = "#00ff41";
 
   ctx.font =
-    fontSize
-    + "px monospace";
+    fontSize + "px monospace";
 
-  for(
-    let i = 0;
-    i < drops.length;
-    i++
-  ){
+  for(let i=0;i<drops.length;i++){
 
     const text =
       letters[
         Math.floor(
-          Math.random()
-          * letters.length
+          Math.random()*letters.length
         )
       ];
 
     ctx.fillText(
       text,
-      i * fontSize,
-      drops[i] * fontSize
+      i*fontSize,
+      drops[i]*fontSize
     );
 
     if(
-      drops[i] * fontSize
-      > canvas.height
-      &&
-      Math.random() > 0.975
+      drops[i]*fontSize > canvas.height
+      && Math.random() > 0.975
     ){
-      drops[i] = 0;
+      drops[i]=0;
     }
 
     drops[i]++;
@@ -645,18 +378,6 @@ function draw(){
 }
 
 setInterval(draw,33);
-
-window.addEventListener(
-  "resize",
-  () => {
-
-    canvas.width =
-      window.innerWidth;
-
-    canvas.height =
-      window.innerHeight;
-  }
-);
 
 </script>
 
