@@ -198,7 +198,29 @@ function loadTopics(){
       .innerHTML = html;
   });
 }
+function convertDriveImageUrl(url) {
 
+  if (!url) return "";
+
+  // กรณีลิงก์แบบ Google Drive /file/d/FILE_ID/view
+  const matchFile = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+
+  if (matchFile && matchFile[1]) {
+    const fileId = matchFile[1];
+    return "https://drive.google.com/thumbnail?id=" + fileId + "&sz=w1000";
+  }
+
+  // กรณีลิงก์มี id=FILE_ID อยู่แล้ว
+  const matchId = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+
+  if (matchId && matchId[1]) {
+    const fileId = matchId[1];
+    return "https://drive.google.com/thumbnail?id=" + fileId + "&sz=w1000";
+  }
+
+  // ถ้าเป็นลิงก์รูปตรงอยู่แล้ว ให้ใช้ตามเดิม
+  return url;
+}
 function loadWork(){
 
   const url = document
