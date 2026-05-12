@@ -205,6 +205,10 @@ function loadWork(){
     .getElementById("topic")
     .value;
 
+  const workBox = document.getElementById("work");
+
+  workBox.innerHTML = "<p>กำลังโหลดงาน...</p>";
+
   fetch(
     API_URL
     + "?action=studentWork"
@@ -214,7 +218,23 @@ function loadWork(){
 
   .then(res => res.json())
 
-  .then(data => {
+  .then(response => {
+
+    if(response.status !== "success"){
+      workBox.innerHTML =
+        "<p>❌ โหลดงานไม่สำเร็จ: " +
+        response.message +
+        "</p>";
+      return;
+    }
+
+    const data = response.data;
+
+    if(!data || data.length === 0){
+      workBox.innerHTML =
+        "<p>ยังไม่มีข้อมูลงานนักเรียนในชีทนี้</p>";
+      return;
+    }
 
     let html = "";
 
@@ -273,9 +293,13 @@ function loadWork(){
       `;
     });
 
-    document
-      .getElementById("work")
-      .innerHTML = html;
+    workBox.innerHTML = html || "<p>ไม่พบข้อมูลตามตัวกรอง</p>";
+  })
+
+  .catch(error => {
+    console.error(error);
+    workBox.innerHTML =
+      "<p>❌ เกิดข้อผิดพลาดในการเชื่อมต่อ API</p>";
   });
 }
 
