@@ -6,7 +6,19 @@
 <title>Matrix Student System</title>
 
 <style>
+.image-box{
+  margin-top:10px;
+}
 
+.image-box img{
+  display:block;
+  width:100%;
+  max-width:420px;
+  max-height:420px;
+  object-fit:contain;
+  border:1px solid #00ff41;
+  background:#000;
+}
 body{
   margin:0;
   overflow-x:hidden;
@@ -409,7 +421,8 @@ function renderWorkCards(data, url){
       return;
     }
 
-    const imageUrl = convertDriveImageUrl(s.image);
+    const imageUrl = convertDriveThumbnailUrl(s.image);
+const previewUrl = convertDrivePreviewUrl(s.image);
 
     html += `
 
@@ -423,18 +436,37 @@ function renderWorkCards(data, url){
         <p>ชื่อ: ${escapeHtml(s.name)}</p>
         <p>รหัสนักเรียน: ${escapeHtml(s.id)}</p>
 
-        ${
-          imageUrl
-          ? `
-            <img
-              src="${escapeHtml(imageUrl)}"
-              alt="Student work"
-              onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"
-            >
-            <p style="display:none;">❌ แสดงรูปไม่ได้ กรุณาตรวจลิงก์รูปหรือสิทธิ์การแชร์</p>
-          `
-          : `<p>ไม่มีลิงก์รูป</p>`
-        }
+       ${
+  imageUrl
+  ? `
+    <div class="image-box">
+
+      <img
+        src="${escapeHtml(imageUrl)}"
+        alt="Student work"
+        onerror="
+          this.style.display='none';
+          this.nextElementSibling.style.display='block';
+        "
+      >
+
+      <iframe
+        src="${escapeHtml(previewUrl)}"
+        style="
+          display:none;
+          width:100%;
+          max-width:420px;
+          height:420px;
+          border:1px solid #00ff41;
+          background:#000;
+        "
+        allow="autoplay"
+      ></iframe>
+
+    </div>
+  `
+  : `<p>ไม่มีลิงก์รูป</p>`
+}
 
         <br>
 
@@ -550,32 +582,59 @@ function populateClassFilter(data){
 // ===============================
 // แปลง Google Drive URL ให้แสดงรูปได้
 // ===============================
-function convertDriveImageUrl(url){
+// ===============================
+// ดึง FILE ID จากลิงก์ Google Drive
+// ===============================
+function getDriveFileId(url){
 
   if(!url) return "";
 
   url = String(url).trim();
 
-  // กรณีลิงก์ /file/d/FILE_ID/view
-  const matchDriveFile = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
-
-  if(matchDriveFile && matchDriveFile[1]){
-    const fileId = matchDriveFile[1];
-    return "https://drive.google.com/thumbnail?id=" + fileId + "&sz=w1000";
+  // แบบ https://drive.google.com/open?id=FILE_ID
+  const matchOpenId = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+  if(matchOpenId && matchOpenId[1]){
+    return matchOpenId[1];
   }
 
-  // กรณีลิงก์มี ?id=FILE_ID
-  const matchId = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
-
-  if(matchId && matchId[1]){
-    const fileId = matchId[1];
-    return "https://drive.google.com/thumbnail?id=" + fileId + "&sz=w1000";
+  // แบบ https://drive.google.com/file/d/FILE_ID/view
+  const matchFileD = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+  if(matchFileD && matchFileD[1]){
+    return matchFileD[1];
   }
 
-  // ถ้าเป็น direct image URL อยู่แล้ว
-  return url;
+  return "";
 }
 
+
+// ===============================
+// ลิงก์ Thumbnail สำหรับแสดงเป็นรูป
+// ===============================
+function convertDriveThumbnailUrl(url){
+
+  const fileId = getDriveFileId(url);
+
+  if(!fileId) return url || "";
+
+  return "https://drive.google.com/thumbnail?id=" 
+    + fileId 
+    + "&sz=w1200";
+}
+
+
+// ===============================
+// ลิงก์ Preview iframe สำรอง
+// ===============================
+function convertDrivePreviewUrl(url){
+
+  const fileId = getDriveFileId(url);
+
+  if(!fileId) return "";
+
+  return "https://drive.google.com/file/d/" 
+    + fileId 
+    + "/preview";
+}
 
 // ===============================
 // ป้องกัน HTML แตกจากข้อมูลในชีท
