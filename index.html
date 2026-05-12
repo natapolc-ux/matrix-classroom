@@ -269,7 +269,10 @@ function loadWork(){
 
       <p>${s.name}</p>
 
-      <img src="${s.image}">
+      <img 
+  src="${convertDriveImageUrl(s.image)}"
+  onerror="this.src='https://placehold.co/250x180?text=No+Image'"
+>
 
       <br><br>
 
